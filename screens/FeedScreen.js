@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet,Button } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
-export default function ListScreen( {navigation }) {
+export default function FeedScreen() {
   return (
     <View style={styles.container}>
-      <Text>List of Posts (coming soon)</Text>
+      <Text>Feed of all reviews</Text>
     </View>
   );
 }
@@ -12,7 +12,7 @@ export default function ListScreen( {navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
   },
 });

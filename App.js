@@ -1,21 +1,20 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import ListScreen from './screens/ListScreen';
-import MapScreen from './screens/MapScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import FeedScreen from './screens/FeedScreen';
+import AddReviewScreen from './screens/AddReviewScreen';
+import ProfileScreen from './screens/ProfileScreen';
 
-const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="List">
-        <Stack.Screen name="List" component={ListScreen} />
-        <Stack.Screen name="Map" component={MapScreen} />
-      </Stack.Navigator>
+      <Tab.Navigator initialRouteName="Feed">
+        <Tab.Screen name="Feed" component={FeedScreen} />
+        <Tab.Screen name="Add Review" component={AddReviewScreen} />
+        <Tab.Screen name="Profile" component={ProfileScreen} />
+      </Tab.Navigator>
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({});
