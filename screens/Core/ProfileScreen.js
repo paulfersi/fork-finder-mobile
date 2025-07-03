@@ -19,12 +19,11 @@ export default function ProfileScreen() {
       if (user) {
         setUserId(user.id);
 
-        // Fetch the username from profiles table
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('username')
           .eq('user_id', user.id)
-          .single();
+          .single();  //must return a single row, otherwise error
 
         if (profileError) {
           console.error('Profile fetch error:', profileError.message);
