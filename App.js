@@ -13,7 +13,6 @@ export default function App() {
       <Stack.Navigator initialRouteName="List">
         <Stack.Screen name="List" component={ListScreen} />
         <Stack.Screen name="Map" component={MapScreen} />
-
       </Stack.Navigator>
     </NavigationContainer>
   );
