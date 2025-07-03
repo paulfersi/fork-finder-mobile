@@ -16,6 +16,8 @@ export default {
     ],
     extra: {
       mapboxToken: process.env.MAPBOX_ACCESS_TOKEN,
+      supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
+      supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_KEY,
     },
     ios: {
       supportsTablet: true,
@@ -23,3 +25,4 @@ export default {
     android: {},
   },
 };
+
