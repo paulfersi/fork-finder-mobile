@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import {View,TextInput,Text,FlatList,StyleSheet,TouchableOpacity,
 } from 'react-native';
 import { supabase } from '../../lib/supabase';
+import { useNavigation } from '@react-navigation/native';
 
 export default function SearchProfileScreen() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
+  const navigation = useNavigation();
 
   const searchProfiles = async (text) => {
     setQuery(text);
@@ -17,7 +19,7 @@ export default function SearchProfileScreen() {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('username')
+      .select('username,user_id')
       .ilike('username', `%${text}%`) //casee insensitive
       .limit(10);
 
@@ -29,7 +31,7 @@ export default function SearchProfileScreen() {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.item}>
+    <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('PublicProfile', { userId: item.user_id })}>
       <Text style={styles.username}>@{item.username}</Text>
     </TouchableOpacity>
   );

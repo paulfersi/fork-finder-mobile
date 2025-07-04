@@ -10,9 +10,11 @@ import ProfileScreen from './screens/Core/ProfileScreen';
 import LoginScreen from './screens/Auth/LoginScreen';
 import RegisterScreen from './screens/Auth/RegisterScreen';
 import SearchProfileScreen from './screens/Core/SearchProfileScreen';
+import PublicProfileScreen from './screens/Core/PublicProfileScreen';
 
 const AuthStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const RootStack = createNativeStackNavigator();
 
 function MainAppTabs() {
   return (
@@ -45,10 +47,22 @@ export default function App() {
     };
   }, []);
 
+  //if there is a session display MainAppTabs otherwise AuthStack
   return (
     <NavigationContainer>
       {session ? (
-        <MainAppTabs />
+        <RootStack.Navigator>
+          <RootStack.Screen
+            name="Tabs"
+            component={MainAppTabs}
+            options={{ headerShown: false }}
+          />
+          <RootStack.Screen
+            name="PublicProfile"
+            component={PublicProfileScreen}
+            options={{ title: 'Profile' }}
+          />
+        </RootStack.Navigator>
       ) : (
         <AuthStack.Navigator>
           <AuthStack.Screen name="Login" component={LoginScreen} />
