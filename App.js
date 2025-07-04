@@ -21,8 +21,8 @@ function MainAppTabs() {
     <Tab.Navigator>
       <Tab.Screen name="Feed" component={FeedScreen} />
       <Tab.Screen name="Add Review" component={AddReviewScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
       <Tab.Screen name="Search" component={SearchProfileScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
