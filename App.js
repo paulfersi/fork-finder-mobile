@@ -6,7 +6,7 @@ import { supabase } from './lib/supabase';
 
 import FeedScreen from './screens/Core/FeedScreen';
 import AddReviewScreen from './screens/Core/AddReviewScreen';
-import ProfileScreen from './screens/Core/MyAccountScreen';
+import MyAccountScreen from './screens/Core/MyAccountScreen';
 import LoginScreen from './screens/Auth/LoginScreen';
 import RegisterScreen from './screens/Auth/RegisterScreen';
 import SearchProfileScreen from './screens/Core/SearchProfileScreen';
@@ -22,7 +22,7 @@ function MainAppTabs() {
       <Tab.Screen name="Feed" component={FeedScreen} />
       <Tab.Screen name="Add Review" component={AddReviewScreen} />
       <Tab.Screen name="Search" component={SearchProfileScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Account" component={MyAccountScreen} />
     </Tab.Navigator>
   );
 }

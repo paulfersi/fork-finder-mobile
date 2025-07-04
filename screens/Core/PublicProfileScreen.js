@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { TouchableOpacity } from 'react-native';
 
 export default function PublicProfileScreen({ route }) {
-  const { userId } = route.params;
+  const { userId } = route.params;  //user searched
 
   const [currentUserId, setCurrentUserId] = useState(null)
   const [isFollowing, setIsFollowing] = useState(false)
