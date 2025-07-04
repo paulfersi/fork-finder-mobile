@@ -120,6 +120,7 @@ export default function AddReviewScreen() {
       <TextInput
         style={styles.input}
         placeholder="Search for a restaurant"
+        placeholderTextColor="gray"
         value={query}
         onChangeText={setQuery}
       />
@@ -151,6 +152,7 @@ export default function AddReviewScreen() {
       <TextInput
         style={styles.input}
         placeholder="Your review"
+        placeholderTextColor="gray"
         value={reviewBody}
         onChangeText={setReviewBody}
         multiline
@@ -158,6 +160,7 @@ export default function AddReviewScreen() {
       <TextInput
         style={styles.input}
         placeholder="Rating (1–5)"
+        placeholderTextColor="gray"
         value={rating}
         onChangeText={setRating}
         keyboardType="numeric"
@@ -174,10 +177,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
   title: { fontSize: 20, marginBottom: 16 },
   input: {
-    borderBottomWidth: 1,
+    borderWidth: 1,
     paddingVertical: 8,
     marginBottom: 12,
-    backgroundColor: "gray"
   },
   resultItem: {
     padding: 10,
