@@ -38,6 +38,7 @@ export default function FeedScreen() {
     setLoading(false);
   };
 
+  //reruns code every time we focus on this screen
   useFocusEffect(
     useCallback(() => {
       fetchReviews();
