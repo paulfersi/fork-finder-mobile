@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useCallback } from 'react';
 import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { supabase } from '../../lib/supabase';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function ExploreScreen() {
   const [markers, setMarkers] = useState([]);
@@ -29,7 +30,7 @@ export default function ExploreScreen() {
     }
 
     //get reviews from followed users
-    const { data: reviews, error } = await supabase
+    const { data, error } = await supabase
       .from('reviews')
       .select(`
         id,
@@ -37,27 +38,20 @@ export default function ExploreScreen() {
         rating,
         created_at,
         user_id,
-        profiles(username),
-        restaurants(name, latitude, longitude)
-      `)
-      .in('user_id', followingIds);
+        profiles:profiles!reviews_user_id_fkey(username), 
+        restaurants(name,latitude,longitude)
+      `).in('user_id', followingIds);
 
-    if (error) {
-      console.error('Review fetch error:', error.message);
-    } else {
-      const validMarkers = reviews
-        .filter(r => r.restaurants?.latitude && r.restaurants?.longitude)
-        .map(r => ({
-          id: r.id,
-          username: r.profiles?.username,
-          restaurant: r.restaurants?.name,
-          lat: parseFloat(r.restaurants?.latitude),
-          lng: parseFloat(r.restaurants?.longitude),
-          rating: r.rating,
-        }));
+    const validMarkers = data.filter(r => r.restaurants?.latitude && r.restaurants?.longitude).map(r => ({
+            id: r.id,
+            username: r.profiles?.username,
+            restaurant: r.restaurants?.name,
+            lat: parseFloat(r.restaurants?.latitude),
+            lng: parseFloat(r.restaurants?.longitude),
+            rating: r.rating,
+    }));
 
-      setMarkers(validMarkers);
-    }
+    setMarkers(validMarkers);
 
     setLoading(false);
   };
@@ -74,7 +68,7 @@ export default function ExploreScreen() {
     );
   }
 
-  if (markers.length === 0) {
+  if (markers.length == 0) {
     return (
       <View style={styles.loader}>
         <Text style={{ color: '#722F37' }}>No reviews from followed users yet.</Text>
