@@ -11,6 +11,7 @@ import LoginScreen from './screens/Auth/LoginScreen';
 import RegisterScreen from './screens/Auth/RegisterScreen';
 import SearchProfileScreen from './screens/Core/SearchProfileScreen';
 import PublicProfileScreen from './screens/Core/PublicProfileScreen';
+import MapViewScreen from './screens/Core/MapViewScreen';
 
 const AuthStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -62,6 +63,12 @@ export default function App() {
             component={PublicProfileScreen}
             options={{ title: 'Profile' }}
           />
+          <RootStack.Screen
+            name="MapView"
+            component={MapViewScreen}
+            options={{ title: 'Map' }}
+          />
+
         </RootStack.Navigator>
       ) : (
         <AuthStack.Navigator>

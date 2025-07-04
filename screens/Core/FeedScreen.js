@@ -1,17 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
+import { useFocusEffect,useNavigation  } from '@react-navigation/native';
+import {View,Text,FlatList,StyleSheet,ActivityIndicator,TouchableOpacity} from 'react-native';
 import { supabase } from '../../lib/supabase';
 
 export default function FeedScreen() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const navigation = useNavigation();
 
   const fetchReviews = async () => {
     setLoading(true);
@@ -25,7 +21,7 @@ export default function FeedScreen() {
         created_at,
         user_id,
         profiles:profiles!reviews_user_id_fkey(username), 
-        restaurants(name)
+        restaurants(name,latitude,longitude)
       `)  //profiles:profiles!reviews_user_id_fkey(username) : this joins profiles and use the relationship named "reviews_user_id_fkey"
       .order('created_at', { ascending: false });
 
@@ -53,6 +49,18 @@ export default function FeedScreen() {
         <Text style={styles.restaurant}>{restaurants?.name || 'Restaurant'}</Text>
         <Text style={styles.body}>{body}</Text>
         <Text style={styles.meta}>⭐ {rating} · {new Date(created_at).toLocaleString()}</Text>
+        <TouchableOpacity
+          style={styles.mapButton}
+          onPress={() =>
+            navigation.navigate('MapView', {
+              name: restaurants?.name,
+              latitude: restaurants?.latitude,
+              longitude: restaurants?.longitude,
+            })
+          }
+        >
+          <Text style={styles.mapButtonText}>View on Map</Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -108,4 +116,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  mapButton: {
+    backgroundColor: '#722F37',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginTop:10
+  },
+  mapButtonText: {
+    color: '#EFDFBB',
+    fontWeight: 'bold',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  
 });
