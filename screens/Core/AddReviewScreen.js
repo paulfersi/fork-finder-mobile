@@ -123,7 +123,9 @@ export default function AddReviewScreen() {
         value={query}
         onChangeText={setQuery}
       />
-      <Button title="Search" onPress={handleSearch} />
+      <TouchableOpacity style={styles.button} onPress={handleSearch}>
+        <Text style={styles.buttonText}>Search</Text>
+      </TouchableOpacity>
 
       {results.length > 0 && (
         <FlatList
@@ -161,7 +163,9 @@ export default function AddReviewScreen() {
         keyboardType="numeric"
       />
 
-      <Button title="Submit Review" onPress={submitReview} />
+      <TouchableOpacity style={styles.button} onPress={submitReview}>
+        <Text style={styles.buttonText}>Submit Review</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -173,7 +177,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     paddingVertical: 8,
     marginBottom: 12,
-    backgroundColor: "#722F37"
+    backgroundColor: "gray"
   },
   resultItem: {
     padding: 10,
@@ -191,4 +195,18 @@ const styles = StyleSheet.create({
   label: {
     fontWeight: 'bold',
   },
+  button: {
+    backgroundColor: '#722F37',
+    paddingVertical: 12,
+    paddingHorizontal: 28,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  buttonText: {
+    color: '#EFDFBB',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
 });

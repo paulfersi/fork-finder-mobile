@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { supabase } from '../../lib/supabase';
+
 
 export default function ProfileScreen() {
   const [userId, setUserId] = useState(null);
@@ -45,7 +46,10 @@ export default function ProfileScreen() {
       <Text>@ {username || 'Loading'}</Text>
       <Text>User ID:</Text>
       <Text style={styles.userId}>{userId || 'Loading...'}</Text>
-      <Button title="Logout" onPress={handleLogout} />
+      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+        <Text style={styles.logoutText}>Logout</Text>
+      </TouchableOpacity>
+
     </View>
   );
 }
@@ -53,4 +57,17 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   userId: { fontWeight: 'bold', marginVertical: 10 },
+  logoutButton: {
+    backgroundColor: '#722F37',
+    paddingVertical: 12,
+    paddingHorizontal: 28,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  logoutText: {
+    color: '#EFDFBB',
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
+  },
 });
