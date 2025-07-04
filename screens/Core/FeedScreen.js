@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -37,9 +38,10 @@ export default function FeedScreen() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchReviews();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchReviews();
+    }, []));
 
   const renderItem = ({ item }) => {
     const { body, rating, created_at, profiles, restaurants } = item;
