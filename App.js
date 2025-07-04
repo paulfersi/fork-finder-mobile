@@ -6,7 +6,7 @@ import { supabase } from './lib/supabase';
 
 import FeedScreen from './screens/Core/FeedScreen';
 import AddReviewScreen from './screens/Core/AddReviewScreen';
-import ProfileScreen from './screens/Core/ProfileScreen';
+import ProfileScreen from './screens/Core/MyAccountScreen';
 import LoginScreen from './screens/Auth/LoginScreen';
 import RegisterScreen from './screens/Auth/RegisterScreen';
 import SearchProfileScreen from './screens/Core/SearchProfileScreen';
