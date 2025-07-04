@@ -3,7 +3,9 @@ import {View,Text,TextInput,Button,StyleSheet,Alert,FlatList,TouchableOpacity} f
 import { supabase } from '../../lib/supabase';
 import Constants from 'expo-constants';
 
-const mapboxToken = Constants.expoConfig.extra.mapboxToken;
+//const mapboxToken = Constants.expoConfig.extra.mapboxToken;
+const GOOGLE_API_KEY = Constants.expoConfig.extra.googlePlacesApiKey;
+
 
 export default function AddReviewScreen() {
   const [query, setQuery] = useState('');
@@ -22,47 +24,62 @@ export default function AddReviewScreen() {
   }, []);
 
   const handleSearch = async () => {
-    const bboxEurope = '-23.958156,31.052934,44.830131,71.185989';
-    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+    const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
       query
-    )}.json?access_token=${mapboxToken}&bbox=${bboxEurope}&limit=3`;
-
+    )}&types=establishment&key=${GOOGLE_API_KEY}`;
+  
     try {
       const res = await fetch(url);
       const json = await res.json();
-      setResults(json.features || []);
+
+      console.log(json);
+      setResults(json.predictions || []);
     } catch (err) {
-      console.error('Mapbox fetch error:', err);
-      Alert.alert('Failed to search');
+      console.error('Google Places fetch error:', err);
+      Alert.alert('Search failed');
     }
   };
 
-  const selectPlace = async (place) => {
-    const { id: place_id, text: name, place_name: address, center } = place;
-    const [longitude, latitude] = center;
-
-    const { data, error } = await supabase
-      .from('restaurants')
-      .upsert(
-        {
-          place_id,
-          name,
-          address,
-          latitude: latitude.toString(),
-          longitude: longitude.toString(),
-        },
-        { onConflict: 'place_id' }
-      )
-      .select()
-      .single();
-
-    if (error) {
-      Alert.alert('Error saving restaurant', error.message);
-    } else {
-      setSelectedPlace({ ...data });
-      setResults([]); // hide list
+  const selectPlace = async (prediction) => {
+    const placeId = prediction.place_id;
+    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,formatted_address,geometry&key=${GOOGLE_API_KEY}`;
+  
+    try {
+      const res = await fetch(detailsUrl);
+      const json = await res.json();
+      const place = json.result;
+  
+      const { name, formatted_address, geometry } = place;
+      const { lat, lng } = geometry.location;
+  
+      const { data, error } = await supabase
+        .from('restaurants')
+        .upsert(
+          {
+            place_id: placeId,
+            name,
+            address: formatted_address,
+            latitude: lat.toString(),
+            longitude: lng.toString(),
+          },
+          { onConflict: 'place_id' }
+        )
+        .select()
+        .single();
+  
+      if (error) {
+        Alert.alert('Error saving restaurant', error.message);
+      } else {
+        setSelectedPlace(data);
+        setResults([]);
+      }
+    } catch (err) {
+      console.error('Place details error:', err);
+      Alert.alert('Failed to load place details');
     }
   };
+  
+
 
   const submitReview = async () => {
     if (!selectedPlace || !reviewBody || !rating) {
@@ -115,7 +132,7 @@ export default function AddReviewScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => selectPlace(item)} style={styles.resultItem}>
               <Text>{item.text}</Text>
-              <Text style={styles.subtext}>{item.place_name}</Text>
+              <Text style={styles.subtext}>{item.description}</Text> //error dipsplaying this
             </TouchableOpacity>
           )}
         />
@@ -164,7 +181,7 @@ const styles = StyleSheet.create({
   },
   subtext: {
     fontSize: 12,
-    color: 'gray',
+    color: 'black',
   },
   selected: {
     marginVertical: 16,

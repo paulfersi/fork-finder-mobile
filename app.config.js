@@ -16,6 +16,7 @@ export default {
     ],
     extra: {
       mapboxToken: process.env.MAPBOX_ACCESS_TOKEN,
+      googlePlacesApiKey: process.env.EXPO_PUBLIC_GOOGLE_PLACES_API_KEY,
       supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
       supabaseAnonKey: process.env.EXPO_PUBLIC_SUPABASE_KEY,
     },
