@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { supabase } from '../../lib/supabase';
+import { TouchableOpacity } from 'react-native';
 
 export default function PublicProfileScreen({ route }) {
   const { userId } = route.params;
+
+  const [currentUserId, setCurrentUserId] = useState(null)
+  const [isFollowing, setIsFollowing] = useState(false)
 
   const [profile, setProfile] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -11,6 +15,22 @@ export default function PublicProfileScreen({ route }) {
 
   const fetchData = async () => {
     setLoading(true);
+
+    //get logged user id
+    const { data: sessionData } = await supabase.auth.getUser();
+    const currentId = sessionData?.user?.id;
+    setCurrentUserId(currentId);
+
+    //check if logged user(currentId) follows the displayed id(userId)
+    const { data: followData } = await supabase
+    .from('profile_follows')
+    .select('*')
+    .eq('follower_id', currentId)
+    .eq('following_id', userId)
+    .single();
+
+    setIsFollowing(!!followData);
+
 
     //profile info
     const { data: profileData, error: profileError } = await supabase
@@ -31,6 +51,27 @@ export default function PublicProfileScreen({ route }) {
 
     setLoading(false);
   };
+
+  const toggleFollow = async () => {
+    if (!currentUserId || !userId) return;
+  
+    if (isFollowing) {
+      // Unfollow
+      const { error } = await supabase
+        .from('profile_follows')
+        .delete()
+        .match({ follower_id: currentUserId, following_id: userId });
+  
+      if (!error) setIsFollowing(false);
+    } else {
+      // Follow
+      const { error } = await supabase
+        .from('profile_follows')
+        .insert([{ follower_id: currentUserId, following_id: userId }]);
+  
+      if (!error) setIsFollowing(true);
+    }
+  };      
 
   useEffect(() => {
     fetchData();
@@ -57,6 +98,14 @@ export default function PublicProfileScreen({ route }) {
     //profile
     <View style={styles.container}>
       <Text style={styles.username}>@{profile.username}</Text>
+      {currentUserId !== userId && (
+        <TouchableOpacity style={styles.followButton} onPress={toggleFollow}>
+            <Text style={styles.followButtonText}>
+            {isFollowing ? 'Unfollow' : 'Follow'}
+            </Text>
+        </TouchableOpacity>
+        )}
+
       <Text style={styles.sectionTitle}>Reviews</Text>
       <FlatList
         data={reviews}
@@ -107,4 +156,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  followButton: {
+    backgroundColor: '#722F37',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+    marginBottom: 12,
+  },
+  followButtonText: {
+    color: '#EFDFBB',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  
 });
