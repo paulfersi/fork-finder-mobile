@@ -12,6 +12,8 @@ export default function PublicProfileScreen({ route }) {
   const [profile, setProfile] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [followerCount,setFollowerCount] = useState(0);
+  const [followingCount,setFollowingCount] = useState(0)
 
   const fetchData = async () => {
     setLoading(true);
@@ -31,13 +33,29 @@ export default function PublicProfileScreen({ route }) {
 
     setIsFollowing(!!followData);
 
-
     //profile info
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('username')
       .eq('user_id', userId)
       .single();
+
+    //count followers
+    const { count: followers, error: followersError } = await supabase
+        .from('profile_follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('following_id', userId);
+    
+    if (!followersError) setFollowerCount(followers);
+
+    //count following
+    const { count: following, error: followingError } = await supabase
+        .from('profile_follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('follower_id', userId);
+    
+    if (!followingError) setFollowingCount(following);
+
 
     //user's reviews
     const { data: reviewData, error: reviewError } = await supabase
@@ -98,6 +116,10 @@ export default function PublicProfileScreen({ route }) {
     //profile
     <View style={styles.container}>
       <Text style={styles.username}>@{profile.username}</Text>
+      <View style={styles.followCounters}>
+        <Text style={styles.followCounter}>{followerCount} Followers</Text>
+        <Text style={styles.followCounter}>{followingCount} Following</Text>
+      </View>
       {currentUserId !== userId && (
         <TouchableOpacity style={styles.followButton} onPress={toggleFollow}>
             <Text style={styles.followButtonText}>
@@ -169,5 +191,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+  followCounters: {
+    flexDirection: 'row',
+    gap: 16,
+    marginVertical: 8,
+  },
+  followCounter: {
+    color: '#555',
+    fontSize: 14,
+  },
+  
   
 });
