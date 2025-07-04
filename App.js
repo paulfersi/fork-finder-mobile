@@ -12,6 +12,7 @@ import RegisterScreen from './screens/Auth/RegisterScreen';
 import SearchProfileScreen from './screens/Core/SearchProfileScreen';
 import PublicProfileScreen from './screens/Core/PublicProfileScreen';
 import MapViewScreen from './screens/Core/MapViewScreen';
+import ExploreScreen from './screens/Core/ExploreScreen';
 
 const AuthStack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -21,6 +22,7 @@ function MainAppTabs() {
   return (
     <Tab.Navigator>
       <Tab.Screen name="Feed" component={FeedScreen} />
+      <Tab.Screen name="Explore" component={ExploreScreen} />
       <Tab.Screen name="Add Review" component={AddReviewScreen} />
       <Tab.Screen name="Search" component={SearchProfileScreen} />
       <Tab.Screen name="Account" component={MyAccountScreen} />
