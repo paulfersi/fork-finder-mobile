@@ -11,32 +11,38 @@ export default function RegisterScreen({ navigation }) {
 
   const signUp = async () => {
     if (!email || !password || !username) {
-        Alert.alert('All fields are required');
-        return;
+      Alert.alert('All fields are required');
+      return;
     }
-
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) Alert.alert('Registration failed', error.message);
-
-    const user = data.user;
-
-    if (user) {
-        const { error: profileError } = await supabase.from('profiles').insert([
-          {
-            user_id: user.id,
-            username: username,
-          },
-        ]);
   
-        if (profileError) {
-          Alert.alert('Profile creation failed', profileError.message);
-        } else {
-          Alert.alert('Success! Please check your email to confirm your account.');
-          navigation.navigate('Login');
-        }
+    const { data, error } = await supabase.auth.signUp({ email, password });
+  
+    if (error) {
+      Alert.alert('Registration failed', error.message);
+      return;
     }
-    
+  
+    const user = data?.user;
+  
+    if (user) {
+      const { error: profileError } = await supabase.from('profiles').insert([
+        {
+          user_id: user.id,
+          username: username,
+        },
+      ]);
+  
+      if (profileError) {
+        Alert.alert('Profile creation failed', profileError.message);
+      } else {
+        Alert.alert('Success! Please check your email to confirm your account.');
+        navigation.navigate('Login');
+      }
+    } else {
+      Alert.alert('Registration pending', 'Check your email to confirm the account.');
+    }
   };
+  
 
   return (
     <View style={styles.container}>
