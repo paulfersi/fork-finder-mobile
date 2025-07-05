@@ -12,6 +12,25 @@ export default function FeedScreen() {
   const fetchReviews = async () => {
     setLoading(true);
 
+    const { data: userData } = await supabase.auth.getUser();
+    const currentUserId = userData?.user?.id;
+    if (!currentUserId) return;
+
+    //get users followed by user logged
+    const { data: follows } = await supabase
+      .from('profile_follows')
+      .select('following_id')
+      .eq('follower_id', currentUserId);
+
+    const followingIds = follows?.map(f => f.following_id) || [];
+
+    if (followingIds.length === 0) {
+      setMarkers([]);
+      setLoading(false);
+      return;
+    }
+
+    //get reviews
     const { data, error } = await supabase
       .from('reviews')
       .select(`
@@ -23,7 +42,7 @@ export default function FeedScreen() {
         profiles:profiles!reviews_user_id_fkey(username), 
         restaurants(name,latitude,longitude)
       `)  //profiles:profiles!reviews_user_id_fkey(username) : this joins profiles and use the relationship named "reviews_user_id_fkey"
-      .order('created_at', { ascending: false });
+      .in('user_id', followingIds).order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching reviews:', error.message);
