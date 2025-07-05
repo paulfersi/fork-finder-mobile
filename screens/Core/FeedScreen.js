@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useFocusEffect,useNavigation  } from '@react-navigation/native';
 import {View,Text,FlatList,StyleSheet,ActivityIndicator,TouchableOpacity} from 'react-native';
 import { supabase } from '../../lib/supabase';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 export default function FeedScreen() {
   const [reviews, setReviews] = useState([]);
@@ -59,6 +61,27 @@ export default function FeedScreen() {
       fetchReviews();
     }, []));
 
+  
+  const handleAddToFavorites = async(reviewId) => {
+    const {data: userData} = await supabase.auth.getUser();
+    const currentUserId = userData?.user?.id;
+    if(!currentUserId) return
+
+    //get profile id
+    const {data: profile} = await supabase.from('profiles').select('id').eq('user_id',currentUserId).single();
+
+    if(!profile) return;
+
+    //update profile favoritesreviews
+    const {error} = await supabase.from('profiles').update({favorite_reviews: {append :[reviewId],},}).eq('id',profile.id);
+
+    if(error){
+      console.error('err adding to favorites',error.message);
+    }else{
+      console.log('review added to favorites');
+    }
+  }
+
   const renderItem = ({ item }) => {
     const { body, rating, created_at, profiles, restaurants } = item;
 
@@ -68,6 +91,7 @@ export default function FeedScreen() {
         <Text style={styles.restaurant}>{restaurants?.name || 'Restaurant'}</Text>
         <Text style={styles.body}>{body}</Text>
         <Text style={styles.meta}>⭐ {rating} · {new Date(created_at).toLocaleString()}</Text>
+        <View style={styles.buttonRow}>
         <TouchableOpacity
           style={styles.mapButton}
           onPress={() =>
@@ -80,6 +104,14 @@ export default function FeedScreen() {
         >
           <Text style={styles.mapButtonText}>View on Map</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.favoriteButton}
+          onPress={() => handleAddToFavorites(item.id)}
+        >
+          <Icon name="heart" size={18} color="#EFDFBB" />
+        </TouchableOpacity>
+        </View>
+
       </View>
     );
   };
@@ -135,19 +167,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  
   mapButton: {
     backgroundColor: '#722F37',
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 6,
-    alignSelf: 'flex-start',
-    marginTop:10
+    marginRight: 10, // creates space between the buttons
   },
+  
+  favoriteButton: {
+    backgroundColor: '#722F37',
+    padding: 10,
+    borderRadius: 6,
+  },
+  
   mapButtonText: {
     color: '#EFDFBB',
     fontWeight: 'bold',
     fontSize: 14,
     textAlign: 'center',
   },
-  
 });
