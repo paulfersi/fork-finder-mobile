@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert,Modal,TextInput } from 'react-native';
 import { supabase } from '../../lib/supabase';
 
 export default function MyAccountScreen() {
@@ -8,6 +8,12 @@ export default function MyAccountScreen() {
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [reviews, setReviews] = useState([]);
+  //for edit modal
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editingReview, setEditingReview] = useState(null);
+  const [newBody, setNewBody] = useState('');
+  const [newRating, setNewRating] = useState('');
+  
 
   useEffect(() => {
     const getUserAndStats = async () => {
@@ -59,7 +65,6 @@ export default function MyAccountScreen() {
 
   //delerte review
   const handleDelete = (reviewId) => {
-    // Show a confirmation dialog
     Alert.alert(
       'Delete Review',
       'Are you sure you want to delete this review?',
@@ -89,38 +94,12 @@ export default function MyAccountScreen() {
     );
   };
   
-  
   //edit review
-  const handleEdit = async (review) => {
-    const newBody = prompt('Edit your review:', review.body);
-    const newRating = prompt('Update rating (1-5):', review.rating.toString());
-  
-    const parsedRating = parseInt(newRating);
-    if (!newBody || isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
-      alert('Invalid input.');
-      return;
-    }
-  
-    const { error } = await supabase
-      .from('reviews')
-      .update({
-        body: newBody,
-        rating: parsedRating,
-      })
-      .eq('id', review.id);
-  
-    if (error) {
-      console.error('Edit failed:', error.message);
-    } else {
-      // Refresh reviews from DB
-      const { data: refreshed } = await supabase
-        .from('reviews')
-        .select('id, body, rating, created_at, restaurants(name)')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-  
-      setReviews(refreshed || []);
-    }
+  const handleEdit = (review) => {
+    setEditingReview(review);
+    setNewBody(review.body);
+    setNewRating(review.rating.toString());
+    setEditModalVisible(true);
   };
   
   const renderReview = ({ item }) => (
@@ -166,8 +145,72 @@ export default function MyAccountScreen() {
         data={reviews}
         keyExtractor={(item) => item.id}
         renderItem={renderReview}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
+        contentContainerStyle={{ paddingBottom: 20 }}/>
+      {editingReview && (
+        <Modal visible={editModalVisible} animationType="slide" transparent>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Edit Review</Text>
+              <TextInput
+                value={newBody}
+                onChangeText={setNewBody}
+                placeholder="Review body"
+                style={styles.modalInput}
+                multiline
+              />
+              <TextInput
+                value={newRating}
+                onChangeText={setNewRating}
+                placeholder="Rating (1–5)"
+                style={styles.modalInput}
+                keyboardType="numeric"
+              />
+
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => setEditModalVisible(false)}>
+                  <Text>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: '#722F37' }]}
+                  onPress={async () => {
+                    const parsed = parseInt(newRating);
+                    if (!newBody || isNaN(parsed) || parsed < 1 || parsed > 5) {
+                      alert('Invalid input');
+                      return;
+                    }
+
+                    const { error } = await supabase
+                      .from('reviews')
+                      .update({
+                        body: newBody,
+                        rating: parsed,
+                      })
+                      .eq('id', editingReview.id);
+
+                    if (!error) {
+                      const { data: refreshed } = await supabase
+                        .from('reviews')
+                        .select('id, body, rating, created_at, restaurants(name)')
+                        .eq('user_id', userId)
+                        .order('created_at', { ascending: false });
+
+                      setReviews(refreshed || []);
+                      setEditModalVisible(false);
+                    } else {
+                      alert('Update failed');
+                    }
+                  }}
+                >
+                  <Text style={{ color: '#EFDFBB', fontWeight: 'bold' }}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </View>
   );
 }
@@ -250,4 +293,38 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
+  //edit modal
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    width: '80%',
+    padding: 20,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButton: {
+    padding: 10,
+    borderRadius: 6,
+  },
+  
 });
