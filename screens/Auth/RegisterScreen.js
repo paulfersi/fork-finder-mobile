@@ -35,11 +35,10 @@ export default function RegisterScreen({ navigation }) {
       if (profileError) {
         Alert.alert('Profile creation failed', profileError.message);
       } else {
-        Alert.alert('Success! Please check your email to confirm your account.');
         navigation.navigate('Login');
       }
     } else {
-      Alert.alert('Registration pending', 'Check your email to confirm the account.');
+      Alert.alert('Registration pending');
     }
   };
   
