@@ -34,7 +34,7 @@ export default function RegisterScreen({ navigation }) {
           Alert.alert('Success! Please check your email to confirm your account.');
           navigation.navigate('Login');
         }
-      }
+    }
     
   };
 

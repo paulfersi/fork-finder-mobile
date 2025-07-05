@@ -95,12 +95,12 @@ export default function PublicProfileScreen({ route }) {
     fetchData();
   }, []);
 
-  const renderItem = ({ item }) => (
+  const renderReview = ({ review }) => (
     //reviews
     <View style={styles.card}>
-      <Text style={styles.restaurant}>{item.restaurants?.name || 'Unknown Restaurant'}</Text>
-      <Text style={styles.body}>{item.body}</Text>
-      <Text style={styles.meta}>⭐ {item.rating} · {new Date(item.created_at).toLocaleString()}</Text>
+      <Text style={styles.restaurant}>{review.restaurants?.name || 'Unknown Restaurant'}</Text>
+      <Text style={styles.body}>{review.body}</Text>
+      <Text style={styles.meta}>⭐ {review.rating} · {new Date(review.created_at).toLocaleString()}</Text>
     </View>
   );
 
@@ -131,8 +131,8 @@ export default function PublicProfileScreen({ route }) {
       <Text style={styles.sectionTitle}>Reviews</Text>
       <FlatList
         data={reviews}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
+        keyExtractor={(review) => review.id}
+        renderReview={renderReview}
         contentContainerStyle={styles.list}
       />
     </View>
