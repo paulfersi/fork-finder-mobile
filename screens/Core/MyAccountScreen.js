@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { supabase } from '../../lib/supabase';
 
 export default function MyAccountScreen() {
@@ -58,18 +58,37 @@ export default function MyAccountScreen() {
   };
 
   //delerte review
-  const handleDelete = async (reviewId) => {
-    const { error } = await supabase
-      .from('reviews')
-      .delete()
-      .eq('id', reviewId);
+  const handleDelete = (reviewId) => {
+    // Show a confirmation dialog
+    Alert.alert(
+      'Delete Review',
+      'Are you sure you want to delete this review?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            const { error } = await supabase
+              .from('reviews')
+              .delete()
+              .eq('id', reviewId);
   
-    if (error) {
-      console.error('Delete failed:', error.message);
-    } else {
-      setReviews((prev) => prev.filter((r) => r.id !== reviewId));
-    }
+            if (error) {
+              console.error('Delete failed:', error.message);
+            } else {
+              setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
+  
   
   //edit review
   const handleEdit = async (review) => {
