@@ -55,6 +55,6 @@ export default function RegisterScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor:"#EFDFBB" },
+  container: { flex: 1, justifyContent: 'center', padding: 20},
   input: { marginBottom: 10, borderBottomWidth: 1, padding: 8, backgroundColor: "#722F37"},
 });
