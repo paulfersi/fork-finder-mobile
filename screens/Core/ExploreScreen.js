@@ -56,9 +56,10 @@ export default function ExploreScreen() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchFollowingReviews();
-  }, []);
+    useFocusEffect(
+        useCallback(() => {
+            fetchFollowingReviews();
+    }, []));
 
   if (loading) {
     return (

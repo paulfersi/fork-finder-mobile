@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert,Modal,TextInput } from 'react-native';
 import { supabase } from '../../lib/supabase';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function MyAccountScreen() {
   const [userId, setUserId] = useState(null);
@@ -15,7 +16,6 @@ export default function MyAccountScreen() {
   const [newRating, setNewRating] = useState('');
   
 
-  useEffect(() => {
     const getUserAndStats = async () => {
       const { data: userData, error: authError } = await supabase.auth.getUser();
       const user = userData?.user;
@@ -56,8 +56,10 @@ export default function MyAccountScreen() {
       if (reviewData) setReviews(reviewData);
     };
 
-    getUserAndStats();
-  }, []);
+    useFocusEffect(
+        useCallback(() => {
+            getUserAndStats();
+    }, []));
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

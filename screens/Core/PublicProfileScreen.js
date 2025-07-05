@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { TouchableOpacity } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function PublicProfileScreen({ route }) {
-  const { userId } = route.params;  //user searched
+  const { displayedUserId } = route.params;  //user searched
 
   const [currentUserId, setCurrentUserId] = useState(null)
   const [isFollowing, setIsFollowing] = useState(false)
@@ -23,12 +24,12 @@ export default function PublicProfileScreen({ route }) {
     const currentId = sessionData?.user?.id;
     setCurrentUserId(currentId);
 
-    //check if logged user(currentId) follows the displayed id(userId)
+    //check if logged user(currentId) follows the displayed id(displayedUserId)
     const { data: followData } = await supabase
     .from('profile_follows')
     .select('*')
     .eq('follower_id', currentId)
-    .eq('following_id', userId)
+    .eq('following_id', displayedUserId)
     .single();
 
     setIsFollowing(!!followData);
@@ -37,14 +38,14 @@ export default function PublicProfileScreen({ route }) {
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('username')
-      .eq('user_id', userId)
+      .eq('user_id', displayedUserId)
       .single();
 
     //count followers
     const { count: followers, error: followersError } = await supabase
         .from('profile_follows')
         .select('*', { count: 'exact', head: true })
-        .eq('following_id', userId);
+        .eq('following_id', displayedUserId);
     
     if (!followersError) setFollowerCount(followers);
 
@@ -52,7 +53,7 @@ export default function PublicProfileScreen({ route }) {
     const { count: following, error: followingError } = await supabase
         .from('profile_follows')
         .select('*', { count: 'exact', head: true })
-        .eq('follower_id', userId);
+        .eq('follower_id', displayedUserId);
     
     if (!followingError) setFollowingCount(following);
 
@@ -61,8 +62,10 @@ export default function PublicProfileScreen({ route }) {
     const { data: reviewData, error: reviewError } = await supabase
       .from('reviews')
       .select('id, body, rating, created_at, restaurants(name)')
-      .eq('user_id', userId)
+      .eq('user_id', displayedUserId)
       .order('created_at', { ascending: false });
+
+    //console.log(reviewData); DEBUG
 
     if (!profileError) setProfile(profileData);
     if (!reviewError) setReviews(reviewData);
@@ -71,29 +74,30 @@ export default function PublicProfileScreen({ route }) {
   };
 
   const toggleFollow = async () => {
-    if (!currentUserId || !userId) return;
+    if (!currentUserId || !displayedUserId) return;
   
     if (isFollowing) {
       // Unfollow
       const { error } = await supabase
         .from('profile_follows')
         .delete()
-        .match({ follower_id: currentUserId, following_id: userId });
+        .match({ follower_id: currentUserId, following_id: displayedUserId });
   
       if (!error) setIsFollowing(false);
     } else {
       // Follow
       const { error } = await supabase
         .from('profile_follows')
-        .insert([{ follower_id: currentUserId, following_id: userId }]);
+        .insert([{ follower_id: currentUserId, following_id: displayedUserId }]);
   
       if (!error) setIsFollowing(true);
     }
   };      
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+    useFocusEffect(
+        useCallback(() => {
+            fetchData();
+    }, []));
 
   const renderReview = ({ review }) => (
     //reviews
@@ -120,7 +124,7 @@ export default function PublicProfileScreen({ route }) {
         <Text style={styles.followCounter}>{followerCount} Followers</Text>
         <Text style={styles.followCounter}>{followingCount} Following</Text>
       </View>
-      {currentUserId !== userId && (
+      {currentUserId !== displayedUserId && (
         <TouchableOpacity style={styles.followButton} onPress={toggleFollow}>
             <Text style={styles.followButtonText}>
             {isFollowing ? 'Unfollow' : 'Follow'}
@@ -132,9 +136,10 @@ export default function PublicProfileScreen({ route }) {
       <FlatList
         data={reviews}
         keyExtractor={(review) => review.id}
-        renderReview={renderReview}
+        renderItem={({ item }) => renderReview({ review: item })}
         contentContainerStyle={styles.list}
-      />
+        />
+
     </View>
   );
 }

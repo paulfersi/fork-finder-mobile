@@ -31,7 +31,7 @@ export default function SearchProfileScreen() {
   };
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('PublicProfile', { userId: item.user_id })}>
+    <TouchableOpacity style={styles.item} onPress={() => navigation.navigate('PublicProfile', { displayedUserId: item.user_id })}>
       <Text style={styles.username}>@{item.username}</Text>
     </TouchableOpacity>
   );
